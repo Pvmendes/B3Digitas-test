@@ -60,19 +60,20 @@ namespace Library.Application.Services
                 await _cryptoCurrencyRepository.AddAsync(cryptoCurrency);
         }
 
-        public async Task<decimal> CalculateBestPrice(CurrencyPairEnum symbol, float quantity, bool isBuyOperation)
+        public async Task<CalculationResult> CalculateBestPrice(CurrencyPairEnum symbol, float quantity, OperationEnum operation)
         {
             var cryptoCurrency = await _cryptoCurrencyRepository.GetLatestBySymbolAsync(symbol);
 
             if (cryptoCurrency == null)
                 throw new InvalidOperationException($"No data available for {symbol}");
 
-            var orderBook = isBuyOperation ? cryptoCurrency.OrderBook.Asks : cryptoCurrency.OrderBook.Bids;
+            var orderBook = operation == OperationEnum.Buy ? cryptoCurrency.OrderBook.Asks : cryptoCurrency.OrderBook.Bids;
 
-            orderBook = isBuyOperation ? orderBook.OrderBy(x => x.Price).ToList() : orderBook.OrderByDescending(x => x.Price).ToList();
+            orderBook = operation == OperationEnum.Sell ? orderBook.OrderBy(x => x.Price).ToList() : orderBook.OrderByDescending(x => x.Price).ToList();
 
             decimal totalCost = 0;
             decimal remainingQuantity = (decimal)(Math.Round(quantity, 7));
+            var usedOrders = new List<Order>();
 
             foreach (var order in orderBook)
             {
@@ -81,12 +82,21 @@ namespace Library.Application.Services
                 var availableQuantity = Math.Min(remainingQuantity, (decimal)(Math.Round(order.Quantity)));
                 totalCost += availableQuantity * order.Price;
                 remainingQuantity -= availableQuantity;
+
+                usedOrders.Add(order); // Track the used orders
             }
 
             if (remainingQuantity > 0)
                 throw new InvalidOperationException("Not enough liquidity to complete the operation");
 
-            return Math.Round(totalCost, 2);
+            return new CalculationResult
+            {
+                Id = cryptoCurrency.Id,
+                UsedOrders = usedOrders,
+                RequestedQuantity = quantity,
+                OperationType = operation.ToString(),
+                TotalCost = Math.Round(totalCost, 2)
+            };
         }
     }
 }

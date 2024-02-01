@@ -35,12 +35,12 @@ namespace B3Digitas.Controllers
         }
 
         [HttpGet("simulateBestPrice")]
-        public async Task<IActionResult> SimulateBestPrice(CurrencyPairEnum symbol, float quantity, bool isBuyOperation)
+        public async Task<IActionResult> SimulateBestPrice(CurrencyPairEnum symbol, float quantity, OperationEnum Operation)
         {
             try
             {
-                var bestPrice = await _cryptoCurrencyService.CalculateBestPrice(symbol, quantity, isBuyOperation);
-                return Ok(new { BestPrice = bestPrice });
+                var result = await _cryptoCurrencyService.CalculateBestPrice(symbol, quantity, Operation);
+                return Ok(result);
             }
             catch (Exception ex)
             {

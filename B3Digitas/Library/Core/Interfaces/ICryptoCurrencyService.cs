@@ -15,6 +15,6 @@ namespace Library.Core.Interfaces
         Task<CryptoCurrencyDTO> GetCryptoCurrencyByIdAsync(Guid id);
         Task<decimal> GetBestPriceAsync(string symbol, decimal quantity, string operationType);
         Task SaveData(CryptoCurrencyEntitie cryptoCurrency);
-        Task<decimal> CalculateBestPrice(CurrencyPairEnum symbol, float quantity, bool isBuyOperation);
+        Task<CalculationResult> CalculateBestPrice(CurrencyPairEnum symbol, float quantity, OperationEnum operation);
     }
 }
