@@ -11,9 +11,6 @@ namespace Library.Core.Interfaces
 {
     public interface ICryptoCurrencyService
     {
-        Task<IEnumerable<CryptoCurrencyDTO>> GetAllCryptoCurrenciesAsync();
-        Task<CryptoCurrencyDTO> GetCryptoCurrencyByIdAsync(Guid id);
-        Task<decimal> GetBestPriceAsync(string symbol, decimal quantity, string operationType);
         Task SaveData(CryptoCurrencyEntitie cryptoCurrency);
         Task<CalculationResult> CalculateBestPrice(CurrencyPairEnum symbol, float quantity, OperationEnum operation);
     }
