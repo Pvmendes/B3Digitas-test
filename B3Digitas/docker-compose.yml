@@ -1,0 +1,25 @@
+version: '3.4'
+
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"
+
+  b3digitas.api:
+    image: ${DOCKER_REGISTRY-}b3digitasapi
+    build:
+      context: .
+      dockerfile: B3Digitas/Dockerfile
+    environment:
+      DATABASE_CONNECTION: mongodb://mongo:27017
+
+  consumerwebsite.consoleapp:
+    image: ${DOCKER_REGISTRY-}consumerwebsiteconsoleapp
+    build:
+      context: .
+      dockerfile: ConsumerWebSite-ConsoleApp/Dockerfile
+    environment:
+      DATABASE_CONNECTION: mongodb://mongo:27017
+
