@@ -37,7 +37,7 @@ namespace Library.Application.Services
         public async Task<decimal> GetBestPriceAsync(string symbol, decimal quantity, string operationType)
         {
             var cryptocurrencies = await _cryptoCurrencyRepository.GetAllAsync();
-            var selectedCrypto = cryptocurrencies.Where(c => c.Symbol == symbol);
+            //var selectedCrypto = cryptocurrencies.Where(c => c.Symbol == symbol);
 
             // Business logic to calculate best price
             decimal bestPrice = 0;
@@ -53,37 +53,10 @@ namespace Library.Application.Services
             return bestPrice;
         }
 
-        public async Task SaveData(string rawData)
+        public async Task SaveData(CryptoCurrencyEntitie cryptoCurrency)
         {
-            var orderBookData = ParseData(rawData);
-
-            //var cryptoCurrencies = MapToCryptoCurrencies(orderBookData);
-
-            //foreach (var cryptoCurrency in cryptoCurrencies)
-            //{
-            //    await _cryptoCurrencyRepository.AddAsync(cryptoCurrency);
-            //}
+            if (cryptoCurrency is not null && cryptoCurrency.RegisterDate != DateTime.MinValue)
+                await _cryptoCurrencyRepository.AddAsync(cryptoCurrency);
         }
-
-        public List<OrderBook> ParseData(string rawData)
-        {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
-            return JsonSerializer.Deserialize<List<OrderBook>>(rawData, options);
-        }
-
-        //public List<CryptoCurrencyEntitie> MapToCryptoCurrencies(List<OrderBook> orderBookData)
-        //{
-        //    return orderBookData.Select(data => new CryptoCurrencyEntitie
-        //    {
-        //        // Assuming you have properties like Price and Amount in CryptoCurrency
-        //        //Price = data.Price,
-        //        //Amount = data.Amount,
-        //        // ... set other properties
-        //    }).ToList();
-        //}
-
     }
 }

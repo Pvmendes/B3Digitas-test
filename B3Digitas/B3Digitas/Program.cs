@@ -21,10 +21,10 @@ if (string.IsNullOrEmpty(ConnectionString))
 builder.Services.AddSingleton<MongoDbContext>(sp =>new MongoDbContext(ConnectionString, "B3Digitas"));
 
 builder.Services.AddScoped<ICryptoCurrencyRepository, CryptoCurrencyRepository>();
-
-builder.Services.AddSingleton<BitstampWebSocketService>();
+builder.Services.AddScoped<ICryptoCurrencyService, CryptoCurrencyService>();
 
 builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

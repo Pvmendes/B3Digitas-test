@@ -1,5 +1,6 @@
 ﻿using Library.Core.DTOs;
 using Library.Core.Entities;
+using Library.Core.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,12 @@ namespace Library.Application.Services
     {
         private readonly ClientWebSocket _webSocket = new ClientWebSocket();
         private string _latestData; // Stores the latest data received
+        private readonly ICryptoCurrencyService _cryptoCurrencyService;
+
+        public BitstampWebSocketService(ICryptoCurrencyService cryptoCurrencyService)
+        {
+            _cryptoCurrencyService = cryptoCurrencyService;
+        }
 
         public async Task ConnectAsync(string uri)
         {
@@ -48,9 +55,8 @@ namespace Library.Application.Services
             await _webSocket.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
         }
 
-        public async Task<string> GetData()
+        public async Task GetData()
         {
-            var DataDTO = new CurrencyData();
             // Check if WebSocket is connected
             if (_webSocket.State == WebSocketState.Open)
             {
@@ -66,7 +72,6 @@ namespace Library.Application.Services
                     _latestData += message; // Update the latest data received
                 }
                 while (!result.EndOfMessage);
-
 
                 // Process message based on channel
                 if (_latestData.Contains("btcusd"))
@@ -84,48 +89,47 @@ namespace Library.Application.Services
             {
                 throw new InvalidOperationException("WebSocket is not connected.");
             }
-
-            return JsonSerializer.Serialize(DataDTO);
         }
 
         private void ProcessCurrencyData(string message, string currencyPair)
         {
-            //Console.WriteLine(message);
-
             // Deserialize the WebSocket message to an appropriate object
             var orderBook = ManualMappingOrderBookDTO(JsonSerializer.Deserialize<OrderBookJson>(message));
 
-            if (orderBook != null)
+            if (orderBook != null && orderBook.Bids.Count > 0 && orderBook.Asks.Count > 0)
             {
                 var _currencyData = new Dictionary<string, CurrencyData>();
 
                 if (!_currencyData.ContainsKey(currencyPair))
-                {
                     _currencyData[currencyPair] = new CurrencyData();
-                }
-
+                
                 var data = _currencyData[currencyPair];
 
                 // Process each bid and ask in the order book
-                if(orderBook.Bids is not null)
-                    foreach (var bid in orderBook.Bids)
-                    {
-                        data.Prices.Add(bid.Price);
-                        data.Quantities.Add(bid.Quantity);
-                        data.HighestPrice = Math.Max(data.HighestPrice, bid.Price);
-                        data.LowestPrice = Math.Min(data.LowestPrice, bid.Price);
-                    }
+                foreach (var bid in orderBook.Bids)
+                {
+                    data.Prices.Add(bid.Price);
+                    data.Quantities.Add(bid.Quantity);
+                    data.HighestPrice = Math.Max(data.HighestPrice, bid.Price);
+                    data.LowestPrice = Math.Min(data.LowestPrice, bid.Price);
+                }
 
-                if (orderBook.Asks is not null)
-                    foreach (var ask in orderBook.Asks)
-                    {
-                        data.Prices.Add(ask.Price);
-                        data.Quantities.Add(ask.Quantity);
-                        data.HighestPrice = Math.Max(data.HighestPrice, ask.Price);
-                        data.LowestPrice = Math.Min(data.LowestPrice, ask.Price);
-                    }
+                foreach (var ask in orderBook.Asks)
+                {
+                    data.Prices.Add(ask.Price);
+                    data.Quantities.Add(ask.Quantity);
+                    data.HighestPrice = Math.Max(data.HighestPrice, ask.Price);
+                    data.LowestPrice = Math.Min(data.LowestPrice, ask.Price);
+                }
 
-                CalculateAndDisplayMetrics(currencyPair, _currencyData);
+                var Metrics = CalculateAndDisplayMetrics(currencyPair, _currencyData);
+
+                _cryptoCurrencyService.SaveData(new CryptoCurrencyEntitie()
+                {
+                    OrderBook = orderBook,
+                    CurrencyMetrics = Metrics,
+                    RegisterDate = DateTime.UtcNow
+                });
             }
         }
         private OrderBook ManualMappingOrderBookDTO(OrderBookJson orderBookJson)
@@ -151,8 +155,7 @@ namespace Library.Application.Services
 
             return orderBookDTO;
         }
-
-        private void CalculateAndDisplayMetrics(string currencyPair, Dictionary<string, CurrencyData>  _currencyData)
+        private CurrencyMetrics CalculateAndDisplayMetrics(string currencyPair, Dictionary<string, CurrencyData>  _currencyData)
         {
             var data = _currencyData[currencyPair];
 
@@ -168,7 +171,15 @@ namespace Library.Application.Services
                 Console.WriteLine($"Average Price: {averagePrice}");
                 Console.WriteLine($"Average Quantity: {averageQuantity}");
                 Console.WriteLine($"<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>");
-            }           
+            }      
+            
+            return new CurrencyMetrics {
+                CurrencyPair = currencyPair,
+                HighestPrice = data.HighestPrice,
+                LowestPrice = data.LowestPrice,
+                AveragePrice = averagePrice, 
+                AverageQuantity = averageQuantity 
+            };          
         }
     }  
 }

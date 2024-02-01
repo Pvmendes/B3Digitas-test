@@ -11,6 +11,6 @@ namespace Library.Core.Entities
         public Guid Id { get; set; } // Unique identifier
         public required OrderBook OrderBook { get; set; }
         public required CurrencyMetrics CurrencyMetrics { get; set; }
-        // ... other properties as per requirement
+        public DateTime RegisterDate { get; set; }
     }
 }

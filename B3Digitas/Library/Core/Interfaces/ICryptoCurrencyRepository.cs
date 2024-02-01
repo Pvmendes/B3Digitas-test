@@ -14,6 +14,6 @@ namespace Library.Core.Interfaces
         Task AddAsync(CryptoCurrencyEntitie cryptoCurrency);
         Task UpdateAsync(CryptoCurrencyEntitie cryptoCurrency);
         Task DeleteAsync(Guid id);
-        // ... other necessary methods for data access
+        Task<CryptoCurrencyEntitie> GetLatestBySymbolAsync(string symbol);
     }
 }

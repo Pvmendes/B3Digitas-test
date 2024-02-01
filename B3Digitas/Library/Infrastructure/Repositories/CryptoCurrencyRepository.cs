@@ -43,5 +43,12 @@ namespace Library.Infrastructure.Repositories
         {
             await _context.CryptoCurrencies.ReplaceOneAsync(c => c.Id == cryptoCurrency.Id, cryptoCurrency);
         }
+        public async Task<CryptoCurrencyEntitie> GetLatestBySymbolAsync(string symbol)
+        {
+            return await _context.CryptoCurrencies
+                                 .Find(c => c.CurrencyMetrics.CurrencyPair == symbol)
+                                 .SortByDescending(c => c.RegisterDate)
+                                 .FirstOrDefaultAsync();
+        }
     }
 }

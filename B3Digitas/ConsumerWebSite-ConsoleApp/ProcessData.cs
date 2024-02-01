@@ -1,4 +1,5 @@
 ﻿using Library.Application.Services;
+using Library.Core.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -13,17 +14,7 @@ namespace ConsumerWebSite_ConsoleApp
         public static async Task Process(ServiceProvider serviceProvider, BitstampWebSocketService bitstampWebSocketService)
         {
             // Get data from WebSocket
-            var data = await bitstampWebSocketService.GetData();
-
-            //Console.WriteLine(data);
-
-            /*
-            var cryptoCurrencyService = serviceProvider.GetService<CryptoCurrencyService>();
-
-            // Process and save data using CryptoCurrencyService
-            // (You'll need to implement this logic based on your business requirements)
-            await cryptoCurrencyService.SaveData(data);
-            */
+            await bitstampWebSocketService.GetData();
         }
     }
 }

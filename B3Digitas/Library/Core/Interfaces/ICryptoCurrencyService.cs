@@ -1,4 +1,5 @@
 ﻿using Library.Core.DTOs;
+using Library.Core.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,6 @@ namespace Library.Core.Interfaces
         Task<IEnumerable<CryptoCurrencyDTO>> GetAllCryptoCurrenciesAsync();
         Task<CryptoCurrencyDTO> GetCryptoCurrencyByIdAsync(Guid id);
         Task<decimal> GetBestPriceAsync(string symbol, decimal quantity, string operationType);
-        // ... other operations
+        Task SaveData(CryptoCurrencyEntitie cryptoCurrency);
     }
 }

@@ -4,11 +4,6 @@ using Library.Infrastructure.Data;
 using Library.Infrastructure.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Library.Application.Helper;
 using Microsoft.Extensions.Configuration;
 
@@ -32,9 +27,10 @@ namespace ConsumerWebSite_ConsoleApp
                 ConnectionString = configurationRoot.GetConnectionString("DefaultConnectionMongoDB");
             }
 
-            services.AddSingleton<MongoDbContext>(sp => 
-            new MongoDbContext(ConnectionString, "B3Digitas"))
+            services.AddSingleton<MongoDbContext>(sp => new MongoDbContext(ConnectionString, "B3Digitas"))                
+                .AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies())
                 .AddScoped<ICryptoCurrencyRepository, CryptoCurrencyRepository>()
+                .AddScoped<ICryptoCurrencyService, CryptoCurrencyService>()
                 .AddSingleton<BitstampWebSocketService>();
         }
     }
