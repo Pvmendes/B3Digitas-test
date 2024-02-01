@@ -8,7 +8,7 @@ namespace Library.Core.Entities
 {
     public class CurrencyMetrics
     {
-        public string CurrencyPair { get; set; }
+        public string CurrencyPairDescription { get; set; }
         public decimal HighestPrice { get; set; }
         public decimal LowestPrice { get; set; }
         public decimal AveragePrice { get; set; }

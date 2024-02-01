@@ -8,6 +8,7 @@ namespace Library.Core.Entities
 {
     public class OrderBook
     {
+        public string CurrencyPair { get; set; }
         public List<Order> Bids { get; set; }
         public List<Order> Asks { get; set; }
     }

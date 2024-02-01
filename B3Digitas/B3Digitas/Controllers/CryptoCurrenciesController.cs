@@ -1,4 +1,5 @@
 ﻿using Library.Core.Interfaces;
+using Library.Core.Enum;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -33,22 +34,18 @@ namespace B3Digitas.Controllers
             return Ok(cryptoCurrency);
         }
 
-        // POST api/<CryptoCurrenciesController>
-        [HttpPost]
-        public void Post([FromBody] string value)
+        [HttpGet("simulateBestPrice")]
+        public async Task<IActionResult> SimulateBestPrice(CurrencyPairEnum symbol, float quantity, bool isBuyOperation)
         {
-        }
-
-        // PUT api/<CryptoCurrenciesController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<CryptoCurrenciesController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            try
+            {
+                var bestPrice = await _cryptoCurrencyService.CalculateBestPrice(symbol, quantity, isBuyOperation);
+                return Ok(new { BestPrice = bestPrice });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

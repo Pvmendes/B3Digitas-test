@@ -8,7 +8,7 @@ namespace Library.Core.Entities
 {
     public class CryptoCurrencyEntitie
     {
-        public Guid Id { get; set; } // Unique identifier
+        public Guid Id { get; set; } // Unique identifier        
         public required OrderBook OrderBook { get; set; }
         public required CurrencyMetrics CurrencyMetrics { get; set; }
         public DateTime RegisterDate { get; set; }

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Driver;
+using Library.Core.Enum;
 
 namespace Library.Infrastructure.Repositories
 {
@@ -43,10 +44,10 @@ namespace Library.Infrastructure.Repositories
         {
             await _context.CryptoCurrencies.ReplaceOneAsync(c => c.Id == cryptoCurrency.Id, cryptoCurrency);
         }
-        public async Task<CryptoCurrencyEntitie> GetLatestBySymbolAsync(string symbol)
+        public async Task<CryptoCurrencyEntitie> GetLatestBySymbolAsync(CurrencyPairEnum symbol)
         {
             return await _context.CryptoCurrencies
-                                 .Find(c => c.CurrencyMetrics.CurrencyPair == symbol)
+                                 .Find(c => c.OrderBook.CurrencyPair == symbol.ToString())
                                  .SortByDescending(c => c.RegisterDate)
                                  .FirstOrDefaultAsync();
         }

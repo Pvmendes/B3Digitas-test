@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Library.Core.DTOs;
 using Library.Core.Entities;
+using Library.Core.Enum;
 using Library.Core.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -57,6 +58,35 @@ namespace Library.Application.Services
         {
             if (cryptoCurrency is not null && cryptoCurrency.RegisterDate != DateTime.MinValue)
                 await _cryptoCurrencyRepository.AddAsync(cryptoCurrency);
+        }
+
+        public async Task<decimal> CalculateBestPrice(CurrencyPairEnum symbol, float quantity, bool isBuyOperation)
+        {
+            var cryptoCurrency = await _cryptoCurrencyRepository.GetLatestBySymbolAsync(symbol);
+
+            if (cryptoCurrency == null)
+                throw new InvalidOperationException($"No data available for {symbol}");
+
+            var orderBook = isBuyOperation ? cryptoCurrency.OrderBook.Asks : cryptoCurrency.OrderBook.Bids;
+
+            orderBook = isBuyOperation ? orderBook.OrderBy(x => x.Price).ToList() : orderBook.OrderByDescending(x => x.Price).ToList();
+
+            decimal totalCost = 0;
+            decimal remainingQuantity = (decimal)(Math.Round(quantity, 7));
+
+            foreach (var order in orderBook)
+            {
+                if (remainingQuantity <= 0) break;
+
+                var availableQuantity = Math.Min(remainingQuantity, (decimal)(Math.Round(order.Quantity)));
+                totalCost += availableQuantity * order.Price;
+                remainingQuantity -= availableQuantity;
+            }
+
+            if (remainingQuantity > 0)
+                throw new InvalidOperationException("Not enough liquidity to complete the operation");
+
+            return Math.Round(totalCost, 2);
         }
     }
 }

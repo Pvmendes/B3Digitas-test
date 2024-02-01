@@ -10,7 +10,6 @@ namespace Library.Core.DTOs
     public class OrderBookJson
     {
         public Data data { get; set; }
-        public string currencyPair { get; set; }
         public string channel { get; set; }
         public string @event { get; set; }
     }

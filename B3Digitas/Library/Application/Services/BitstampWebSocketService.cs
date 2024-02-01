@@ -91,7 +91,7 @@ namespace Library.Application.Services
             }
         }
 
-        private void ProcessCurrencyData(string message, string currencyPair)
+        private void ProcessCurrencyData(string message, string currencyPairDescription)
         {
             // Deserialize the WebSocket message to an appropriate object
             var orderBook = ManualMappingOrderBookDTO(JsonSerializer.Deserialize<OrderBookJson>(message));
@@ -100,10 +100,10 @@ namespace Library.Application.Services
             {
                 var _currencyData = new Dictionary<string, CurrencyData>();
 
-                if (!_currencyData.ContainsKey(currencyPair))
-                    _currencyData[currencyPair] = new CurrencyData();
+                if (!_currencyData.ContainsKey(currencyPairDescription))
+                    _currencyData[currencyPairDescription] = new CurrencyData();
                 
-                var data = _currencyData[currencyPair];
+                var data = _currencyData[currencyPairDescription];
 
                 // Process each bid and ask in the order book
                 foreach (var bid in orderBook.Bids)
@@ -122,7 +122,7 @@ namespace Library.Application.Services
                     data.LowestPrice = Math.Min(data.LowestPrice, ask.Price);
                 }
 
-                var Metrics = CalculateAndDisplayMetrics(currencyPair, _currencyData);
+                var Metrics = CalculateAndDisplayMetrics(currencyPairDescription, _currencyData);
 
                 _cryptoCurrencyService.SaveData(new CryptoCurrencyEntitie()
                 {
@@ -134,10 +134,16 @@ namespace Library.Application.Services
         }
         private OrderBook ManualMappingOrderBookDTO(OrderBookJson orderBookJson)
         {
-            var orderBookDTO = new OrderBook() { Bids = new List<Order>(), Asks = new List<Order>() };
+            var channelSliptArray = orderBookJson.channel.Split('_');
+            var orderBookDTO = new OrderBook() { 
+                CurrencyPair = channelSliptArray[2], 
+                Bids = new List<Order>(), 
+                Asks = new List<Order>() 
+            };
 
             if (orderBookJson.data.asks is not null)            
-                orderBookDTO.Asks.AddRange(orderBookJson.data.asks.Select(x =>
+                orderBookDTO.Asks.AddRange(
+                    orderBookJson.data.asks.Select(x =>
                        new Order
                        {
                            Price = decimal.Parse(x[0]),
@@ -155,17 +161,17 @@ namespace Library.Application.Services
 
             return orderBookDTO;
         }
-        private CurrencyMetrics CalculateAndDisplayMetrics(string currencyPair, Dictionary<string, CurrencyData>  _currencyData)
+        private CurrencyMetrics CalculateAndDisplayMetrics(string currencyPairDescription, Dictionary<string, CurrencyData>  _currencyData)
         {
-            var data = _currencyData[currencyPair];
+            var data = _currencyData[currencyPairDescription];
 
             decimal averagePrice = data.Prices.Any() ? data.Prices.Average() : 0;
             float averageQuantity = data.Quantities.Any() ? data.Quantities.Average() : 0;
 
             if (data.Prices.Any() && data.Quantities.Any())
             {
-                Console.WriteLine($"<<<<<<<<<<<<<<< {currencyPair.Replace("/USD","")} >>>>>>>>>>>>>>>>");
-                Console.WriteLine($"Currency Pair: {currencyPair}");
+                Console.WriteLine($"<<<<<<<<<<<<<<< {currencyPairDescription.Replace("/USD","")} >>>>>>>>>>>>>>>>");
+                Console.WriteLine($"Currency Pair: {currencyPairDescription}");
                 Console.WriteLine($"Highest Price: {data.HighestPrice}");
                 Console.WriteLine($"Lowest Price: {data.LowestPrice}");
                 Console.WriteLine($"Average Price: {averagePrice}");
@@ -174,7 +180,7 @@ namespace Library.Application.Services
             }      
             
             return new CurrencyMetrics {
-                CurrencyPair = currencyPair,
+                CurrencyPairDescription = currencyPairDescription,
                 HighestPrice = data.HighestPrice,
                 LowestPrice = data.LowestPrice,
                 AveragePrice = averagePrice, 

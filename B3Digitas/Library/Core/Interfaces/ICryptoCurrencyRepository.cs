@@ -1,4 +1,5 @@
 ﻿using Library.Core.Entities;
+using Library.Core.Enum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,6 @@ namespace Library.Core.Interfaces
         Task AddAsync(CryptoCurrencyEntitie cryptoCurrency);
         Task UpdateAsync(CryptoCurrencyEntitie cryptoCurrency);
         Task DeleteAsync(Guid id);
-        Task<CryptoCurrencyEntitie> GetLatestBySymbolAsync(string symbol);
+        Task<CryptoCurrencyEntitie> GetLatestBySymbolAsync(CurrencyPairEnum symbol);
     }
 }
