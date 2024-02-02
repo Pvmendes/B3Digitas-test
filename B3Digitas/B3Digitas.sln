@@ -5,11 +5,13 @@ VisualStudioVersion = 17.8.34511.84
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "B3Digitas.API", "B3Digitas\B3Digitas.API.csproj", "{6E58CA55-C3D7-4769-9BBC-8E8C449594DB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Library", "Library\Library.csproj", "{A03414EB-CB53-4138-B575-0D0C07ADDFFB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "B3Digitas.Library", "Library\B3Digitas.Library.csproj", "{A03414EB-CB53-4138-B575-0D0C07ADDFFB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsumerWebSite.ConsoleApp", "ConsumerWebSite-ConsoleApp\ConsumerWebSite.ConsoleApp.csproj", "{84400A04-5104-41F4-9C44-27B63BECFC49}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "B3Digitas.ConsumerWebSite", "ConsumerWebSite-ConsoleApp\B3Digitas.ConsumerWebSite.csproj", "{84400A04-5104-41F4-9C44-27B63BECFC49}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{5E2BE279-EE9D-49A4-8586-5FC2EEFA0B12}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "B3Digitas.Tests", "..\B3Digitas.Tests\B3Digitas.Tests.csproj", "{F7B4D7F4-D570-47B9-B0F8-46FC3F5235EB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{5E2BE279-EE9D-49A4-8586-5FC2EEFA0B12}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E2BE279-EE9D-49A4-8586-5FC2EEFA0B12}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E2BE279-EE9D-49A4-8586-5FC2EEFA0B12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7B4D7F4-D570-47B9-B0F8-46FC3F5235EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7B4D7F4-D570-47B9-B0F8-46FC3F5235EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7B4D7F4-D570-47B9-B0F8-46FC3F5235EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7B4D7F4-D570-47B9-B0F8-46FC3F5235EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

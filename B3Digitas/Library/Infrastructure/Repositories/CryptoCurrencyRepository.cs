@@ -44,6 +44,7 @@ namespace Library.Infrastructure.Repositories
         {
             await _context.CryptoCurrencies.ReplaceOneAsync(c => c.Id == cryptoCurrency.Id, cryptoCurrency);
         }
+
         public async Task<CryptoCurrencyEntitie> GetLatestBySymbolAsync(CurrencyPairEnum symbol)
         {
             return await _context.CryptoCurrencies
