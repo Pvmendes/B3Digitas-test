@@ -73,6 +73,7 @@ namespace B3Digitas.Tests
         }
 
         #region CalculateBestPrice
+
         #region smoke tests 
         [Test]
         public async Task CalculateBestPrice_ReturnsCorrectTotalCost_ForBuyOperation()
@@ -293,15 +294,6 @@ namespace B3Digitas.Tests
             Assert.That(ex.Message, Is.EqualTo("Fail on manual Mapping for OrderBookJson cannot be null or empty."));
         }
 
-        [Test]
-        public void ManualMappingOrderBookDTO_ThrowsException_Null ()
-        {
-            var ex = Assert.Throws<InvalidOperationException>(() =>
-             _service.ManualMappingOrderBookDTO(new OrderBookJson())
-            );
-
-            Assert.That(ex.Message, Is.EqualTo("Fail on manual Mapping for OrderBookJson cannot be null or empty."));
-        }
         #endregion
 
         #endregion

@@ -77,12 +77,12 @@ namespace Library.Application.Services
                 if (_latestData.Contains("btcusd"))
                 {
                     // Process BTC/USD data
-                    _cryptoCurrencyService.ProcessCurrencyDataAsync(_latestData, "BTC/USD");
+                    _ = _cryptoCurrencyService.ProcessCurrencyDataAsync(_latestData, "BTC/USD");
                 }
                 else if (_latestData.Contains("ethusd"))
                 {
                     // Process ETH/USD data
-                    _cryptoCurrencyService.ProcessCurrencyDataAsync(_latestData, "ETH/USD");
+                    _ = _cryptoCurrencyService.ProcessCurrencyDataAsync(_latestData, "ETH/USD");
                 }
             }
             else

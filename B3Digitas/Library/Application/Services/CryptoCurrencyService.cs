@@ -79,6 +79,9 @@ namespace Library.Application.Services
             // Deserialize the WebSocket message to an appropriate object
             var orderBook = ManualMappingOrderBookDTO(JsonSerializer.Deserialize<OrderBookJson>(message));
 
+            if (orderBook is null)
+                return;
+            
             var _currencyData = new Dictionary<string, CurrencyData>();
 
             if (!_currencyData.ContainsKey(currencyPairDescription))
@@ -115,6 +118,9 @@ namespace Library.Application.Services
 
         public OrderBook ManualMappingOrderBookDTO(OrderBookJson orderBookJson)
         {
+            if (orderBookJson.data.bids is null)
+                return null;
+
             if (orderBookJson.data == null || (orderBookJson.data.bids.Count <= 0 && orderBookJson.data.asks.Count <= 0))
                 throw new InvalidOperationException($"Fail on manual Mapping for OrderBookJson cannot be null or empty.");
 
