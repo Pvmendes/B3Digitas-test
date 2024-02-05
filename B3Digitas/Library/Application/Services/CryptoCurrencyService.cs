@@ -15,12 +15,10 @@ namespace Library.Application.Services
     public class CryptoCurrencyService : ICryptoCurrencyService
     {
         private readonly ICryptoCurrencyRepository _cryptoCurrencyRepository;
-        private readonly IMapper _mapper;
 
-        public CryptoCurrencyService(ICryptoCurrencyRepository cryptoCurrencyRepository, IMapper mapper)
+        public CryptoCurrencyService(ICryptoCurrencyRepository cryptoCurrencyRepository)
         {
             _cryptoCurrencyRepository = cryptoCurrencyRepository;
-            _mapper = mapper;
         }
 
         public async Task SaveData(CryptoCurrencyEntitie cryptoCurrency)
@@ -31,6 +29,9 @@ namespace Library.Application.Services
 
         public async Task<CalculationResult> CalculateBestPrice(CurrencyPairEnum symbol, float quantity, OperationEnum operation)
         {
+            if (quantity <= 0)
+                throw new InvalidOperationException($"Quantity cannot be 0 or negative.");        
+
             var cryptoCurrency = await _cryptoCurrencyRepository.GetLatestBySymbolAsync(symbol);
 
             if (cryptoCurrency == null)
