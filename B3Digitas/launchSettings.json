@@ -5,7 +5,8 @@
       "commandVersion": "1.0",
       "serviceActions": {
         "b3digitas.api": "StartDebugging",
-        "consumerwebsite.consoleapp": "StartDebugging"
+        "consumerwebsite.consoleapp": "StartDebugging",
+        "b3digitas.consumerwebsite": "StartDebugging"
       }
     }
   }

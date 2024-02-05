@@ -77,115 +77,18 @@ namespace Library.Application.Services
                 if (_latestData.Contains("btcusd"))
                 {
                     // Process BTC/USD data
-                    ProcessCurrencyData(_latestData, "BTC/USD");
+                    _cryptoCurrencyService.ProcessCurrencyDataAsync(_latestData, "BTC/USD");
                 }
                 else if (_latestData.Contains("ethusd"))
                 {
                     // Process ETH/USD data
-                    ProcessCurrencyData(_latestData, "ETH/USD");
+                    _cryptoCurrencyService.ProcessCurrencyDataAsync(_latestData, "ETH/USD");
                 }
             }
             else
             {
                 throw new InvalidOperationException("WebSocket is not connected.");
             }
-        }
-
-        private void ProcessCurrencyData(string message, string currencyPairDescription)
-        {
-            // Deserialize the WebSocket message to an appropriate object
-            var orderBook = ManualMappingOrderBookDTO(JsonSerializer.Deserialize<OrderBookJson>(message));
-
-            if (orderBook != null && orderBook.Bids.Count > 0 && orderBook.Asks.Count > 0)
-            {
-                var _currencyData = new Dictionary<string, CurrencyData>();
-
-                if (!_currencyData.ContainsKey(currencyPairDescription))
-                    _currencyData[currencyPairDescription] = new CurrencyData();
-                
-                var data = _currencyData[currencyPairDescription];
-
-                // Process each bid and ask in the order book
-                foreach (var bid in orderBook.Bids)
-                {
-                    data.Prices.Add(bid.Price);
-                    data.Quantities.Add(bid.Quantity);
-                    data.HighestPrice = Math.Max(data.HighestPrice, bid.Price);
-                    data.LowestPrice = Math.Min(data.LowestPrice, bid.Price);
-                }
-
-                foreach (var ask in orderBook.Asks)
-                {
-                    data.Prices.Add(ask.Price);
-                    data.Quantities.Add(ask.Quantity);
-                    data.HighestPrice = Math.Max(data.HighestPrice, ask.Price);
-                    data.LowestPrice = Math.Min(data.LowestPrice, ask.Price);
-                }
-
-                var Metrics = CalculateAndDisplayMetrics(currencyPairDescription, _currencyData);
-
-                _cryptoCurrencyService.SaveData(new CryptoCurrencyEntitie()
-                {
-                    OrderBook = orderBook,
-                    CurrencyMetrics = Metrics,
-                    RegisterDate = DateTime.UtcNow
-                });
-            }
-        }
-        private OrderBook ManualMappingOrderBookDTO(OrderBookJson orderBookJson)
-        {
-            var channelSliptArray = orderBookJson.channel.Split('_');
-            var orderBookDTO = new OrderBook() { 
-                CurrencyPair = channelSliptArray[2], 
-                Bids = new List<Order>(), 
-                Asks = new List<Order>() 
-            };
-
-            if (orderBookJson.data.asks is not null)            
-                orderBookDTO.Asks.AddRange(
-                    orderBookJson.data.asks.Select(x =>
-                       new Order
-                       {
-                           Price = decimal.Parse(x[0]),
-                           Quantity = float.Parse(x[1])
-                       }));           
-
-            if (orderBookJson.data.bids is not null)
-                orderBookDTO.Bids.AddRange(
-                    orderBookJson.data.bids.Select(x =>
-                        new Order
-                        {
-                            Price = decimal.Parse(x[0]),
-                            Quantity = float.Parse(x[1])                            
-                        }));
-
-            return orderBookDTO;
-        }
-        private CurrencyMetrics CalculateAndDisplayMetrics(string currencyPairDescription, Dictionary<string, CurrencyData>  _currencyData)
-        {
-            var data = _currencyData[currencyPairDescription];
-
-            decimal averagePrice = data.Prices.Any() ? data.Prices.Average() : 0;
-            float averageQuantity = data.Quantities.Any() ? data.Quantities.Average() : 0;
-
-            if (data.Prices.Any() && data.Quantities.Any())
-            {
-                Console.WriteLine($"<<<<<<<<<<<<<<< {currencyPairDescription.Replace("/USD","")} >>>>>>>>>>>>>>>>");
-                Console.WriteLine($"Currency Pair: {currencyPairDescription}");
-                Console.WriteLine($"Highest Price: {data.HighestPrice}");
-                Console.WriteLine($"Lowest Price: {data.LowestPrice}");
-                Console.WriteLine($"Average Price: {averagePrice}");
-                Console.WriteLine($"Average Quantity: {averageQuantity}");
-                Console.WriteLine($"<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>");
-            }      
-            
-            return new CurrencyMetrics {
-                CurrencyPairDescription = currencyPairDescription,
-                HighestPrice = data.HighestPrice,
-                LowestPrice = data.LowestPrice,
-                AveragePrice = averagePrice, 
-                AverageQuantity = averageQuantity 
-            };          
         }
     }  
 }

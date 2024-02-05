@@ -12,14 +12,10 @@ services:
     build:
       context: .
       dockerfile: B3Digitas/Dockerfile
-    environment:
-      DATABASE_CONNECTION: mongodb://mongo:27017
 
-  consumerwebsite.consoleapp:
-    image: ${DOCKER_REGISTRY-}consumerwebsiteconsoleapp
+  b3digitas.consumerwebsite:
+    image: ${DOCKER_REGISTRY-}b3digitasconsumerwebsite
     build:
       context: .
       dockerfile: ConsumerWebSite-ConsoleApp/Dockerfile
-    environment:
-      DATABASE_CONNECTION: mongodb://mongo:27017
 

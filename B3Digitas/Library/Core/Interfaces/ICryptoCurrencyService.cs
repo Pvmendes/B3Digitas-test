@@ -11,7 +11,10 @@ namespace Library.Core.Interfaces
 {
     public interface ICryptoCurrencyService
     {
-        Task SaveData(CryptoCurrencyEntitie cryptoCurrency);
+        Task SaveWebSiteData(CryptoCurrencyEntitie cryptoCurrency);
         Task<CalculationResult> CalculateBestPrice(CurrencyPairEnum symbol, float quantity, OperationEnum operation);
+        Task ProcessCurrencyDataAsync(string message, string currencyPairDescription);
+        OrderBook ManualMappingOrderBookDTO(OrderBookJson orderBookJson);
+        CurrencyMetrics CalculateAndDisplayMetrics(string currencyPairDescription, Dictionary<string, CurrencyData> _currencyData);
     }
 }

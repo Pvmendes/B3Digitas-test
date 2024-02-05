@@ -54,8 +54,23 @@ namespace B3Digitas.Tests
             quantity = 5;
         }
 
-        #region smoke tests
+        [Test]
+        public void SaveWebSiteData_ThrowsException_CryptoCurrencyEntitie()
+        {
+            var entitie = new CryptoCurrencyEntitie()
+            {
+                CurrencyMetrics = currencyMetrics,
+                OrderBook = sampleOrderBook,
+            };
 
+            // Act & Assert
+            Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                await _service.SaveWebSiteData(entitie));
+        }
+
+
+        #region CalculateBestPrice
+        #region smoke tests 
         [Test]
         public async Task CalculateBestPrice_ReturnsCorrectTotalCost_ForBuyOperation()
         {
@@ -215,6 +230,6 @@ namespace B3Digitas.Tests
 
             Assert.That(ex.Message, Is.EqualTo("Quantity cannot be 0 or negative."));
         }
-
+        #endregion
     }
 }

@@ -4,7 +4,7 @@
     <ProjectVersion>2.1</ProjectVersion>
     <DockerTargetOS>Linux</DockerTargetOS>
     <DockerPublishLocally>False</DockerPublishLocally>
-    <ProjectGuid>5e2be279-ee9d-49a4-8586-5fc2eefa0b12</ProjectGuid>
+    <ProjectGuid>9c3bb284-05fb-4fda-85e2-e1cbe5793e72</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/swagger</DockerServiceUrl>
     <DockerServiceName>b3digitas.api</DockerServiceName>
