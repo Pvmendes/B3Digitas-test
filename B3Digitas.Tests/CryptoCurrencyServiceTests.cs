@@ -1,12 +1,16 @@
-﻿using Library.Application.Services;
+﻿using B3Digitas.Tests.msg;
+using Library.Application.Services;
+using Library.Core.DTOs;
 using Library.Core.Entities;
 using Library.Core.Enum;
 using Library.Core.Interfaces;
+using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace B3Digitas.Tests
@@ -67,7 +71,6 @@ namespace B3Digitas.Tests
             Assert.ThrowsAsync<InvalidOperationException>(async () =>
                 await _service.SaveWebSiteData(entitie));
         }
-
 
         #region CalculateBestPrice
         #region smoke tests 
@@ -231,5 +234,88 @@ namespace B3Digitas.Tests
             Assert.That(ex.Message, Is.EqualTo("Quantity cannot be 0 or negative."));
         }
         #endregion
+
+        #region ProcessCurrencyData
+
+        [Test]
+        public async Task ProcessCurrencyData_Not_ThrowsException()
+        {
+            await _service.ProcessCurrencyDataAsync(BtcUSDmsg.msg, BtcUSDmsg.currencyPairDescription);
+        }
+
+        #region ThrowsException
+        [Test]
+        public async Task ProcessCurrencyData_ThrowsException_Emptymsg()
+        {
+            var ex = Assert.ThrowsAsync<InvalidOperationException>(async () => 
+            await _service.ProcessCurrencyDataAsync("", BtcUSDmsg.currencyPairDescription));
+
+            Assert.That(ex.Message, Is.EqualTo("message or currencyPairDescription cannot be empty."));
+        }
+
+        [Test]
+        public async Task ProcessCurrencyData_ThrowsException_CurrencyPairDescription()
+        {
+            var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await _service.ProcessCurrencyDataAsync(BtcUSDmsg.msg, ""));
+
+            Assert.That(ex.Message, Is.EqualTo("message or currencyPairDescription cannot be empty."));
+        }
+
+        [Test]
+        public async Task ProcessCurrencyData_ThrowsException_NoBidsAsksmsg()
+        {
+            var ex = Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await _service.ProcessCurrencyDataAsync(BtcUSDmsg.Error_NoBidsAsksmsg, BtcUSDmsg.currencyPairDescription));
+            Assert.That(ex.Message, Is.EqualTo("Fail on manual Mapping for OrderBookJson cannot be null or empty."));
+        }
+
+        #endregion
+
+        #endregion
+
+        #region ManualMappingOrderBookDTO
+
+        [Test]
+        public void ManualMappingOrderBookDTO_Not_ThrowsException()
+        {
+            _service.ManualMappingOrderBookDTO(JsonSerializer.Deserialize<OrderBookJson>(BtcUSDmsg.msg));
+        }
+
+        #region ThrowsException
+        [Test]
+        public void ManualMappingOrderBookDTO_ThrowsException_NoBidsAsksmsg()
+        {
+            var ex = Assert.Throws<InvalidOperationException>(() =>
+             _service.ManualMappingOrderBookDTO(JsonSerializer.Deserialize<OrderBookJson>(BtcUSDmsg.Error_NoBidsAsksmsg))
+            );
+
+            Assert.That(ex.Message, Is.EqualTo("Fail on manual Mapping for OrderBookJson cannot be null or empty."));
+        }
+
+        [Test]
+        public void ManualMappingOrderBookDTO_ThrowsException_Null ()
+        {
+            var ex = Assert.Throws<InvalidOperationException>(() =>
+             _service.ManualMappingOrderBookDTO(new OrderBookJson())
+            );
+
+            Assert.That(ex.Message, Is.EqualTo("Fail on manual Mapping for OrderBookJson cannot be null or empty."));
+        }
+        #endregion
+
+        #endregion
+
+        [Test]
+        public void CalculateAndDisplayMetrics_ThrowsException()
+        {
+            var _currencyData = new Dictionary<string, CurrencyData>();
+
+            var ex = Assert.Throws<InvalidOperationException>(() =>
+             _service.CalculateAndDisplayMetrics("", _currencyData)
+            );
+
+            Assert.That(ex.Message, Is.EqualTo("currencyPairDescription cannot be empty."));
+        }
     }
 }

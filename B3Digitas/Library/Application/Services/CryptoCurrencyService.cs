@@ -71,51 +71,53 @@ namespace Library.Application.Services
             };
         }
 
-
         public async Task ProcessCurrencyDataAsync(string message, string currencyPairDescription)
         {
+            if (string.IsNullOrEmpty(message) || string.IsNullOrEmpty(currencyPairDescription))
+                throw new InvalidOperationException($"message or currencyPairDescription cannot be empty.");
+
             // Deserialize the WebSocket message to an appropriate object
             var orderBook = ManualMappingOrderBookDTO(JsonSerializer.Deserialize<OrderBookJson>(message));
 
-            if (orderBook != null && orderBook.Bids.Count > 0 && orderBook.Asks.Count > 0)
+            var _currencyData = new Dictionary<string, CurrencyData>();
+
+            if (!_currencyData.ContainsKey(currencyPairDescription))
+                _currencyData[currencyPairDescription] = new CurrencyData();
+
+            var data = _currencyData[currencyPairDescription];
+
+            // Process each bid and ask in the order book
+            foreach (var bid in orderBook.Bids)
             {
-                var _currencyData = new Dictionary<string, CurrencyData>();
-
-                if (!_currencyData.ContainsKey(currencyPairDescription))
-                    _currencyData[currencyPairDescription] = new CurrencyData();
-
-                var data = _currencyData[currencyPairDescription];
-
-                // Process each bid and ask in the order book
-                foreach (var bid in orderBook.Bids)
-                {
-                    data.Prices.Add(bid.Price);
-                    data.Quantities.Add(bid.Quantity);
-                    data.HighestPrice = Math.Max(data.HighestPrice, bid.Price);
-                    data.LowestPrice = Math.Min(data.LowestPrice, bid.Price);
-                }
-
-                foreach (var ask in orderBook.Asks)
-                {
-                    data.Prices.Add(ask.Price);
-                    data.Quantities.Add(ask.Quantity);
-                    data.HighestPrice = Math.Max(data.HighestPrice, ask.Price);
-                    data.LowestPrice = Math.Min(data.LowestPrice, ask.Price);
-                }
-
-                var Metrics = CalculateAndDisplayMetrics(currencyPairDescription, _currencyData);
-
-                await SaveWebSiteData(new CryptoCurrencyEntitie()
-                {
-                    OrderBook = orderBook,
-                    CurrencyMetrics = Metrics,
-                    RegisterDate = DateTime.UtcNow
-                });
+                data.Prices.Add(bid.Price);
+                data.Quantities.Add(bid.Quantity);
+                data.HighestPrice = Math.Max(data.HighestPrice, bid.Price);
+                data.LowestPrice = Math.Min(data.LowestPrice, bid.Price);
             }
+
+            foreach (var ask in orderBook.Asks)
+            {
+                data.Prices.Add(ask.Price);
+                data.Quantities.Add(ask.Quantity);
+                data.HighestPrice = Math.Max(data.HighestPrice, ask.Price);
+                data.LowestPrice = Math.Min(data.LowestPrice, ask.Price);
+            }
+
+            var Metrics = CalculateAndDisplayMetrics(currencyPairDescription, _currencyData);
+
+            await SaveWebSiteData(new CryptoCurrencyEntitie()
+            {
+                OrderBook = orderBook,
+                CurrencyMetrics = Metrics,
+                RegisterDate = DateTime.UtcNow
+            });            
         }
 
         public OrderBook ManualMappingOrderBookDTO(OrderBookJson orderBookJson)
         {
+            if (orderBookJson.data == null || (orderBookJson.data.bids.Count <= 0 && orderBookJson.data.asks.Count <= 0))
+                throw new InvalidOperationException($"Fail on manual Mapping for OrderBookJson cannot be null or empty.");
+
             var channelSliptArray = orderBookJson.channel.Split('_');
             var orderBookDTO = new OrderBook()
             {
@@ -147,6 +149,9 @@ namespace Library.Application.Services
 
         public CurrencyMetrics CalculateAndDisplayMetrics(string currencyPairDescription, Dictionary<string, CurrencyData> _currencyData)
         {
+            if (string.IsNullOrEmpty(currencyPairDescription))
+                throw new InvalidOperationException($"currencyPairDescription cannot be empty.");
+
             var data = _currencyData[currencyPairDescription];
 
             decimal averagePrice = data.Prices.Any() ? data.Prices.Average() : 0;
