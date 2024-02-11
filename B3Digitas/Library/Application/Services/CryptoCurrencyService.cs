@@ -46,12 +46,15 @@ namespace Library.Application.Services
             decimal totalCost = 0;
             decimal remainingQuantity = (decimal)(Math.Round(quantity, 7));
             var usedOrders = new List<Order>();
+            float totalQuantity = 0;
 
             foreach (var order in orderBook)
             {
                 if (remainingQuantity <= 0) break;
 
-                var availableQuantity = Math.Min(remainingQuantity, (decimal)(Math.Round(order.Quantity)));
+                totalQuantity += order.Quantity;
+
+                var availableQuantity = Math.Min(remainingQuantity, (decimal)(Math.Round(order.Quantity, 7)));
                 totalCost += availableQuantity * order.Price;
                 remainingQuantity -= availableQuantity;
 
@@ -65,7 +68,7 @@ namespace Library.Application.Services
             {
                 Id = cryptoCurrency.Id,
                 UsedOrders = usedOrders,
-                RequestedQuantity = quantity,
+                RequestedQuantity = totalQuantity,
                 OperationType = operation.ToString(),
                 TotalCost = Math.Round(totalCost, 2)
             };
